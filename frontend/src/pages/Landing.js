@@ -1,5 +1,23 @@
+import { getLocations } from "../api/location.api.js";
+import { getLeaderboard } from "../api/user.api.js";
+
 export const Landing = async ({ user }) => {
   const app = document.getElementById("app");
+  
+  let locCount = 0;
+  let userCount = 0;
+  let onlineCount = Math.floor(Math.random() * 5) + 1;
+  
+  try {
+    const [locationsRes, leaderboardRes] = await Promise.all([
+      getLocations(true),
+      getLeaderboard()
+    ]);
+    locCount = (locationsRes.data || []).length;
+    userCount = (leaderboardRes || []).length;
+  } catch (err) {
+    console.error("Failed to load stats", err);
+  }
   
   app.innerHTML = `
     <div class="landing-page">
@@ -26,17 +44,17 @@ export const Landing = async ({ user }) => {
           
           <div class="hero-stats fade-up" style="animation-delay: 0.5s">
             <div class="stat-item">
-              <h3 class="count-up" data-target="1500">0</h3>
+              <h3 class="count-up" data-target="${locCount}">0</h3>
               <p>Hoàn cảnh khó khăn</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="3000">0</h3>
+              <h3 class="count-up" data-target="${userCount}">0</h3>
               <p>Người dẫn lửa</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="124">0</h3>
+              <h3 class="count-up" data-target="${onlineCount}">0</h3>
               <p>Đang trực tuyến</p>
             </div>
           </div>
@@ -150,8 +168,8 @@ export const Landing = async ({ user }) => {
       </section>
 
       <section class="contact-section" style="padding: 100px 0; background: var(--bg2); position: relative; overflow: hidden;">
-        <!-- Contact Background Pattern -->
-        <div style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Vietnam_map.svg/1024px-Vietnam_map.svg.png'); background-size: contain; background-position: center right; background-repeat: no-repeat; opacity: 0.04;"></div>
+        <!-- Contact Background Landscape -->
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; background-image: url('https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; opacity: 0.15; filter: grayscale(50%);"></div>
         
         <div class="container" style="position: relative; z-index: 2;">
           <div class="auth-card" style="margin: 0 auto; max-width: 600px;">

@@ -20,7 +20,11 @@ export const Home = async ({ user, userData }) => {
       ` : ""}
       
       <div class="map-controls marker-entrance">
-        <!-- Removed manual locate button -->
+        <button class="btn btn--white shadow-soft" id="locate-btn" title="Vị trí của tôi" style="padding:10px 14px; border-radius:12px; display:flex; align-items:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
       </div>
       
       <div id="map"></div>
@@ -90,6 +94,17 @@ function _initFilterAndLocate(locations, user, userData) {
       });
     });
   });
+
+  const locateBtn = document.getElementById("locate-btn");
+  if (locateBtn) {
+    locateBtn.addEventListener("click", () => {
+      if (userLocationLayer && mapInstance) {
+        mapInstance.flyTo(userLocationLayer.getLatLng(), 16, { animate: true });
+      } else {
+        Toast.show("Đang tìm vị trí của bạn...", "info");
+      }
+    });
+  }
 
   // Automatically track user location
   if (navigator.geolocation) {
