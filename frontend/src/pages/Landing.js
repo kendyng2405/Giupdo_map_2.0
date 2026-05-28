@@ -88,6 +88,28 @@ export const Landing = async ({ user }) => {
     </div>
   `;
 
+  // Setup sequential scroll animations
+  const fadeElements = document.querySelectorAll('.fade-up');
+  
+  // Remove animation from CSS to control via JS class
+  fadeElements.forEach(el => {
+    el.style.animation = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+  });
+
+  const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = `fadeUpAnim 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
+        // Keep the inline animation-delay if it exists
+        scrollObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeElements.forEach(el => scrollObserver.observe(el));
+
   // Animate count up
   const counters = document.querySelectorAll('.count-up');
   counters.forEach(counter => {
@@ -104,7 +126,6 @@ export const Landing = async ({ user }) => {
       }
     };
     
-    // Intersection observer to start animation when visible
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         updateCount();
@@ -113,4 +134,81 @@ export const Landing = async ({ user }) => {
     });
     observer.observe(counter);
   });
+
+  // --- Liquid/Fluid Mouse Effect ---
+  const canvas = document.createElement('canvas');
+  canvas.id = 'fluid-canvas';
+  Object.assign(canvas.style, {
+    position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
+    pointerEvents: 'none', zIndex: '-1', opacity: '0.6'
+  });
+  document.body.appendChild(canvas);
+  
+  const ctx = canvas.getContext('2d');
+  let width, height, particles = [];
+  const mouse = { x: -1000, y: -1000 };
+
+  const resize = () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', resize);
+  resize();
+
+  const handleMouseMove = e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    for(let i=0; i<3; i++) {
+      particles.push({
+        x: mouse.x, y: mouse.y,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        size: Math.random() * 15 + 5,
+        life: 1
+      });
+    }
+  };
+
+  window.addEventListener('mousemove', handleMouseMove);
+
+  const render = () => {
+    if (!document.getElementById('fluid-canvas')) return; // Cleanup on unmount
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw liquid particles
+    particles.forEach((p, index) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.02;
+      p.size *= 0.95;
+      
+      if (p.life <= 0) {
+        particles.splice(index, 1);
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(184, 50, 40, ${p.life * 0.3})`;
+        ctx.fill();
+      }
+    });
+    requestAnimationFrame(render);
+  };
+  render();
+
+  // Cleanup canvas when navigating away from landing
+  const cleanup = () => {
+    const c = document.getElementById('fluid-canvas');
+    if (c) c.remove();
+    window.removeEventListener('resize', resize);
+    window.removeEventListener('mousemove', handleMouseMove);
+  };
+  
+  // Bind cleanup to router changes (rough implementation)
+  const appObserver = new MutationObserver(() => {
+    if (!document.querySelector('.landing-page')) {
+      cleanup();
+      appObserver.disconnect();
+    }
+  });
+  appObserver.observe(app, { childList: true });
 };
