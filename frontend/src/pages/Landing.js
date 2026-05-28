@@ -6,7 +6,7 @@ export const Landing = async ({ user }) => {
   
   let locCount = 0;
   let userCount = 0;
-  let onlineCount = Math.floor(Math.random() * 5) + 1;
+  let onlineCount = 1; // Since there is only one user (you) testing it right now
   
   try {
     const [locationsRes, leaderboardRes] = await Promise.all([
@@ -14,7 +14,7 @@ export const Landing = async ({ user }) => {
       getLeaderboard()
     ]);
     locCount = (locationsRes.data || []).length;
-    userCount = (leaderboardRes || []).length;
+    userCount = (leaderboardRes.data || []).length;
   } catch (err) {
     console.error("Failed to load stats", err);
   }
