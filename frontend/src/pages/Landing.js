@@ -105,6 +105,35 @@ export const Landing = async ({ user }) => {
           </div>
         </div>
       </section>
+      <section class="scroll-anim-section" id="scroll-anim-section">
+        <div class="scroll-anim-sticky">
+          <h1 class="scroll-anim-text" id="scroll-anim-text">KẾT NỐI YÊU THƯƠNG</h1>
+        </div>
+      </section>
+
+      <section class="contact-section" style="padding: 100px 0; background: var(--bg2);">
+        <div class="container">
+          <div class="auth-card" style="margin: 0 auto; max-width: 600px;">
+            <h2 class="section-title" style="margin-bottom: 24px;">Liên hệ với chúng tôi</h2>
+            <p style="text-align:center; color: var(--text-muted); margin-bottom: 32px;">Nếu bạn có thắc mắc hoặc muốn hợp tác, hãy gửi tin nhắn cho chúng tôi.</p>
+            <form id="contact-form">
+              <div class="form-group">
+                <label>Họ và tên</label>
+                <input type="text" class="form-control" required placeholder="Nhập họ và tên">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" required placeholder="Nhập địa chỉ email">
+              </div>
+              <div class="form-group">
+                <label>Nội dung</label>
+                <textarea class="form-control" required placeholder="Nội dung liên hệ..."></textarea>
+              </div>
+              <button type="submit" class="btn btn--primary btn--full btn--lg">Gửi lời nhắn</button>
+            </form>
+          </div>
+        </div>
+      </section>
     </div>
   `;
 
@@ -215,12 +244,74 @@ export const Landing = async ({ user }) => {
   };
   render();
 
+  // --- Scroll Scrub Animation ---
+  const animSection = document.getElementById('scroll-anim-section');
+  const animText = document.getElementById('scroll-anim-text');
+  
+  const handleScrollAnim = () => {
+    if (!animSection || !animText) return;
+    const rect = animSection.getBoundingClientRect();
+    
+    // Total scrollable distance is height - viewport
+    const totalScroll = rect.height - window.innerHeight;
+    
+    // We start when rect.top <= window.innerHeight and finish when rect.bottom <= window.innerHeight
+    // Wait, simpler: we want progress from 0 to 1 as we scroll through the section while it's sticky.
+    // Sticky starts when rect.top <= 0
+    if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
+      let progress = Math.abs(rect.top) / totalScroll;
+      
+      // Enhance the animation curve
+      const scale = 0.5 + progress * 1.5; // Scales from 0.5 to 2.0
+      // Opacity fades in early and fades out very late
+      let opacity = progress * 3;
+      if (progress > 0.8) opacity = (1 - progress) * 5; // fade out at end
+      
+      // translateY to make it float up slightly
+      const translateY = 20 - (progress * 20); // 20vh to 0vh
+      
+      animText.style.transform = `scale(${scale}) translateY(${translateY}vh)`;
+      animText.style.opacity = Math.min(Math.max(opacity, 0), 1);
+    } else if (rect.top > 0) {
+      animText.style.transform = `scale(0.5) translateY(20vh)`;
+      animText.style.opacity = 0;
+    } else if (rect.bottom < window.innerHeight) {
+      animText.style.opacity = 0;
+    }
+  };
+  
+  window.addEventListener('scroll', handleScrollAnim, { passive: true });
+  handleScrollAnim(); // init state
+
+  // --- Contact Form Logic ---
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = contactForm.querySelector('button');
+      const prev = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span> Đang gửi...';
+      btn.disabled = true;
+      
+      // Simulate API call
+      setTimeout(() => {
+        import('../components/Toast.js').then(({ Toast }) => {
+          Toast.show("Đã gửi tin nhắn! Cảm ơn bạn đã liên hệ.", "success");
+        });
+        contactForm.reset();
+        btn.innerHTML = prev;
+        btn.disabled = false;
+      }, 1200);
+    });
+  }
+
   // Cleanup canvas when navigating away from landing
   const cleanup = () => {
     const c = document.getElementById('fluid-canvas');
     if (c) c.remove();
     window.removeEventListener('resize', resize);
     window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('scroll', handleScrollAnim);
   };
   
   // Bind cleanup to router changes (rough implementation)
