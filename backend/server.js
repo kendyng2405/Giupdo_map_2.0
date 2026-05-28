@@ -7,6 +7,7 @@ import locationRoutes from './routes/location.routes.js';
 import userRoutes from './routes/user.routes.js';
 import suggestionRoutes from './routes/suggestion.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import contactRoutes from './routes/contact.routes.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use('/api/locations', locationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/suggestions', suggestionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

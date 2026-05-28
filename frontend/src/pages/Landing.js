@@ -90,7 +90,7 @@ export const Landing = async ({ user }) => {
         <div class="container">
           <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
             <div class="about-visual fade-up">
-              <img src="https://images.unsplash.com/photo-1593113589914-07553f1a0e88?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Từ thiện" style="width: 100%; border-radius: 24px; box-shadow: var(--shadow-lg);">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Rice_terraces_in_Mu_Cang_Chai%2C_Vietnam.jpg" alt="Việt Nam" style="width: 100%; border-radius: 24px; box-shadow: var(--shadow-lg); object-fit: cover; height: 350px;">
             </div>
             <div class="about-content fade-up" style="animation-delay: 0.2s">
               <h2 class="section-title" style="text-align: left; margin-bottom: 24px;">Sứ mệnh của chúng tôi</h2>
@@ -119,15 +119,15 @@ export const Landing = async ({ user }) => {
             <form id="contact-form">
               <div class="form-group">
                 <label>Họ và tên</label>
-                <input type="text" class="form-control" required placeholder="Nhập họ và tên">
+                <input type="text" name="name" class="form-control" required placeholder="Nhập họ và tên">
               </div>
               <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-control" required placeholder="Nhập địa chỉ email">
+                <input type="email" name="email" class="form-control" required placeholder="Nhập địa chỉ email">
               </div>
               <div class="form-group">
                 <label>Nội dung</label>
-                <textarea class="form-control" required placeholder="Nội dung liên hệ..."></textarea>
+                <textarea class="form-control" name="message" required placeholder="Nội dung liên hệ..."></textarea>
               </div>
               <button type="submit" class="btn btn--primary btn--full btn--lg">Gửi lời nhắn</button>
             </form>
@@ -189,13 +189,14 @@ export const Landing = async ({ user }) => {
   canvas.id = 'fluid-canvas';
   Object.assign(canvas.style, {
     position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
-    pointerEvents: 'none', zIndex: '-1', opacity: '0.6'
+    pointerEvents: 'none', zIndex: '9999', opacity: '0.9'
   });
   document.body.appendChild(canvas);
   
   const ctx = canvas.getContext('2d');
   let width, height, particles = [];
   const mouse = { x: -1000, y: -1000 };
+  const emojis = ['🇻🇳', '❤️'];
 
   const resize = () => {
     width = canvas.width = window.innerWidth;
@@ -207,13 +208,15 @@ export const Landing = async ({ user }) => {
   const handleMouseMove = e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
-    for(let i=0; i<3; i++) {
+    // Emit fewer particles since they are emojis
+    if(Math.random() > 0.3) {
       particles.push({
         x: mouse.x, y: mouse.y,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
-        size: Math.random() * 15 + 5,
-        life: 1
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        size: Math.random() * 20 + 10,
+        life: 1,
+        emoji: emojis[Math.floor(Math.random() * emojis.length)]
       });
     }
   };
@@ -224,20 +227,20 @@ export const Landing = async ({ user }) => {
     if (!document.getElementById('fluid-canvas')) return; // Cleanup on unmount
     ctx.clearRect(0, 0, width, height);
     
-    // Draw liquid particles
+    // Draw particles
     particles.forEach((p, index) => {
       p.x += p.vx;
       p.y += p.vy;
-      p.life -= 0.02;
-      p.size *= 0.95;
+      p.life -= 0.015;
       
       if (p.life <= 0) {
         particles.splice(index, 1);
       } else {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(184, 50, 40, ${p.life * 0.3})`;
-        ctx.fill();
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.font = `${p.size}px Arial`;
+        ctx.fillText(p.emoji, p.x, p.y);
+        ctx.restore();
       }
     });
     requestAnimationFrame(render);
@@ -286,22 +289,35 @@ export const Landing = async ({ user }) => {
   // --- Contact Form Logic ---
   const contactForm = document.getElementById('contact-form');
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = contactForm.querySelector('button');
       const prev = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Đang gửi...';
       btn.disabled = true;
       
-      // Simulate API call
-      setTimeout(() => {
-        import('../components/Toast.js').then(({ Toast }) => {
-          Toast.show("Đã gửi tin nhắn! Cảm ơn bạn đã liên hệ.", "success");
-        });
+      const formData = {
+        name: contactForm.name.value,
+        email: contactForm.email.value,
+        message: contactForm.message.value
+      };
+
+      try {
+        const { sendContact } = await import('../api/contact.api.js');
+        const { Toast } = await import('../components/Toast.js');
+        
+        await sendContact(formData);
+        
+        Toast.show("Đã gửi tin nhắn! Cảm ơn bạn đã liên hệ.", "success");
         contactForm.reset();
+      } catch (err) {
+        import('../components/Toast.js').then(({ Toast }) => {
+          Toast.show(err.message || "Lỗi khi gửi liên hệ", "error");
+        });
+      } finally {
         btn.innerHTML = prev;
         btn.disabled = false;
-      }, 1200);
+      }
     });
   }
 
