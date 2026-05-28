@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from './client.js';
+import { apiGet, apiPostForm, apiPutForm, apiPatch, apiDelete, apiPost } from './client.js';
 
 export const getLocations = async (all = false) => {
   const url = all ? '/locations?all=true' : '/locations';
@@ -10,11 +10,11 @@ export const getLocation = async (id) => {
 };
 
 export const createLocation = async (formData) => {
-  return await apiPost('/locations', { body: formData });
+  return await apiPostForm('/locations', formData);
 };
 
 export const updateLocation = async (id, formData) => {
-  return await apiPut(`/locations/${id}`, { body: formData });
+  return await apiPutForm(`/locations/${id}`, formData);
 };
 
 export const deleteLocation = async (id) => {

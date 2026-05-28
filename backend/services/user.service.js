@@ -46,10 +46,31 @@ export const findById = async (uid) => {
   const doc = await db.collection('users').doc(uid).get();
   if (!doc.exists) return null;
   const data = doc.data();
+  const points = data.points || 0;
+  const { currentRank, nextRank } = getRankByPoints(points);
+  
+  // Calculate progress towards next rank
+  let progress = 100;
+  let pointsToNext = 0;
+  if (nextRank) {
+    const rangeTotal = nextRank.minPoints - currentRank.minPoints;
+    const rangeDone = points - currentRank.minPoints;
+    progress = Math.round((rangeDone / rangeTotal) * 100);
+    pointsToNext = nextRank.minPoints - points;
+  }
+  
   return {
     id: doc.id,
     ...data,
-    rankInfo: getRankByPoints(data.points || 0)
+    rankInfo: { currentRank, nextRank },
+    rank: {
+      name: currentRank.name,
+      color: currentRank.color,
+      minPoints: currentRank.minPoints,
+      progress,
+      pointsToNext,
+      next: nextRank ? { name: nextRank.name, color: nextRank.color, minPoints: nextRank.minPoints } : null
+    }
   };
 };
 
@@ -84,12 +105,17 @@ export const getLeaderboard = async (limit = 10) => {
     
   return snapshot.docs.map(doc => {
     const data = doc.data();
+    const { currentRank } = getRankByPoints(data.points || 0);
     return {
       id: doc.id,
       fullName: data.fullName,
       photoURL: data.photoURL,
       points: data.points,
-      rankInfo: getRankByPoints(data.points || 0)
+      rankInfo: getRankByPoints(data.points || 0),
+      rank: {
+        name: currentRank.name,
+        color: currentRank.color
+      }
     };
   });
 };

@@ -14,7 +14,11 @@ export const create = async (data, imageFile) => {
   };
   
   if (typeof sugData.helpTypes === 'string') {
-    sugData.helpTypes = sugData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      sugData.helpTypes = JSON.parse(sugData.helpTypes);
+    } catch(e) {
+      sugData.helpTypes = sugData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   sugData.lat = Number(sugData.lat);
   sugData.lng = Number(sugData.lng);

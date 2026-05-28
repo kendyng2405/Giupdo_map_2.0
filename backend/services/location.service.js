@@ -27,7 +27,11 @@ export const create = async (data, imageFile) => {
   
   // Format arrays and numbers
   if (typeof locData.helpTypes === 'string') {
-    locData.helpTypes = locData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      locData.helpTypes = JSON.parse(locData.helpTypes);
+    } catch(e) {
+      locData.helpTypes = locData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   locData.lat = Number(locData.lat);
   locData.lng = Number(locData.lng);
@@ -62,7 +66,11 @@ export const update = async (id, data, imageFile) => {
   }
   
   if (typeof updateData.helpTypes === 'string') {
-    updateData.helpTypes = updateData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      updateData.helpTypes = JSON.parse(updateData.helpTypes);
+    } catch(e) {
+      updateData.helpTypes = updateData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   if (updateData.lat) updateData.lat = Number(updateData.lat);
   if (updateData.lng) updateData.lng = Number(updateData.lng);
