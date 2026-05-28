@@ -151,7 +151,7 @@ export const Landing = async ({ user }) => {
 
       <section class="contact-section" style="padding: 100px 0; background: var(--bg2); position: relative; overflow: hidden;">
         <!-- Contact Background Pattern -->
-        <div style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.03; pointer-events:none; background-image: radial-gradient(var(--text) 2px, transparent 2px); background-size: 40px 40px;"></div>
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Vietnam_map.svg/1024px-Vietnam_map.svg.png'); background-size: contain; background-position: center right; background-repeat: no-repeat; opacity: 0.04;"></div>
         
         <div class="container" style="position: relative; z-index: 2;">
           <div class="auth-card" style="margin: 0 auto; max-width: 600px;">
@@ -237,7 +237,6 @@ export const Landing = async ({ user }) => {
   const ctx = canvas.getContext('2d');
   let width, height, particles = [];
   const mouse = { x: -1000, y: -1000 };
-  const emojis = ['🇻🇳', '❤️'];
 
   const resize = () => {
     width = canvas.width = window.innerWidth;
@@ -249,20 +248,43 @@ export const Landing = async ({ user }) => {
   const handleMouseMove = e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
-    // Emit fewer particles since they are emojis
     if(Math.random() > 0.3) {
       particles.push({
         x: mouse.x, y: mouse.y,
         vx: (Math.random() - 0.5) * 3,
         vy: (Math.random() - 0.5) * 3,
-        size: Math.random() * 20 + 10,
+        size: Math.random() * 15 + 10,
         life: 1,
-        emoji: emojis[Math.floor(Math.random() * emojis.length)]
+        isFlag: Math.random() > 0.5
       });
     }
   };
 
   window.addEventListener('mousemove', handleMouseMove);
+
+  const drawStar = (cx, cy, spikes, outerRadius, innerRadius) => {
+    let rot = Math.PI / 2 * 3;
+    let x = cx;
+    let y = cy;
+    let step = Math.PI / spikes;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fill();
+  };
 
   const render = () => {
     if (!document.getElementById('fluid-canvas')) return; // Cleanup on unmount
@@ -279,8 +301,19 @@ export const Landing = async ({ user }) => {
       } else {
         ctx.save();
         ctx.globalAlpha = p.life;
-        ctx.font = `${p.size}px Arial`;
-        ctx.fillText(p.emoji, p.x, p.y);
+        if (p.isFlag) {
+          // Draw real Vietnam flag
+          ctx.translate(p.x, p.y);
+          // Red box
+          ctx.fillStyle = '#DA251D';
+          ctx.fillRect(-p.size, -p.size*0.66, p.size*2, p.size*1.33);
+          // Yellow star
+          ctx.fillStyle = '#FFFF00';
+          drawStar(0, 0, 5, p.size*0.4, p.size*0.15);
+        } else {
+          ctx.font = `${p.size*1.5}px Arial`;
+          ctx.fillText('❤️', p.x - p.size*0.75, p.y + p.size*0.5);
+        }
         ctx.restore();
       }
     });

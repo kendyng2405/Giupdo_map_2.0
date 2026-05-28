@@ -20,12 +20,7 @@ export const Home = async ({ user, userData }) => {
       ` : ""}
       
       <div class="map-controls marker-entrance">
-        <button class="map-ctrl-btn" id="locate-btn" title="Vị trí của tôi">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-          </svg>
-        </button>
+        <!-- Removed manual locate button -->
       </div>
       
       <div id="map"></div>
@@ -80,6 +75,8 @@ export const Home = async ({ user, userData }) => {
   }
 };
 
+let watchId = null;
+
 function _initFilterAndLocate(locations, user, userData) {
   document.querySelectorAll(".filter-chip").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -94,20 +91,35 @@ function _initFilterAndLocate(locations, user, userData) {
     });
   });
 
-  document.getElementById("locate-btn")?.addEventListener("click", () => {
-    if (!navigator.geolocation) { Toast.show("Trình duyệt không hỗ trợ định vị.", "error"); return; }
-    navigator.geolocation.getCurrentPosition(pos => {
+  // Automatically track user location
+  if (navigator.geolocation) {
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    let isFirstPan = true;
+
+    watchId = navigator.geolocation.watchPosition(pos => {
       if (!mapInstance) return;
-      if (userLocationLayer) {
-        mapInstance.removeLayer(userLocationLayer);
-        userLocationLayer = null;
+      
+      const latlng = [pos.coords.latitude, pos.coords.longitude];
+      
+      if (!userLocationLayer) {
+        const icon = L.divIcon({
+          html: `<div class="user-pulse-dot-wrap"><div class="user-pulse-dot"></div><div class="user-pulse-ring"></div></div>`,
+          className: "", iconSize: [24, 24], iconAnchor: [12, 12]
+        });
+        userLocationLayer = L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(mapInstance);
+      } else {
+        userLocationLayer.setLatLng(latlng);
       }
-      mapInstance.setView([pos.coords.latitude, pos.coords.longitude], 15, { animate: true });
-      userLocationLayer = L.circle([pos.coords.latitude, pos.coords.longitude], {
-        radius: 150, color: "#C0392B", fillOpacity: 0.15
-      }).addTo(mapInstance);
-    }, () => Toast.show("Không thể lấy vị trí.", "error"));
-  });
+      
+      // Only pan automatically on the very first GPS hit so we don't annoy the user
+      if (isFirstPan) {
+        mapInstance.setView(latlng, 14, { animate: true });
+        isFirstPan = false;
+      }
+    }, err => {
+      console.warn("Geolocation tracking failed or denied.", err);
+    }, { enableHighAccuracy: true });
+  }
 
   const radiusSelect = document.getElementById("radius-filter");
   const radiusPanel = document.getElementById("radius-results");
