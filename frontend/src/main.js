@@ -89,6 +89,39 @@ document.addEventListener('click', async (e) => {
       console.error(err);
     }
   }
+
+  // Theme toggle
+  const themeBtn = e.target.closest('#theme-btn');
+  if (themeBtn) {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('ttv_theme', next);
+  }
+
+  // Notification bell
+  const notifBell = e.target.closest('#notif-bell');
+  if (notifBell) {
+    import('./components/Toast.js').then(({ Toast }) => {
+      Toast.show("Chức năng thông báo đang được phát triển.", "success");
+    });
+  }
+
+  // Burger menu toggle
+  const burgerBtn = e.target.closest('#burger-btn');
+  if (burgerBtn) {
+    const navLinks = document.getElementById('main-nav');
+    if (navLinks) {
+      navLinks.classList.toggle('open');
+    }
+  } else {
+    // Close burger menu if clicked outside
+    const navLinks = document.getElementById('main-nav');
+    if (navLinks && navLinks.classList.contains('open') && !e.target.closest('#main-nav')) {
+      navLinks.classList.remove('open');
+    }
+  }
 });
 
 router.init();

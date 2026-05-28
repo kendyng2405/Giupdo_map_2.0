@@ -36,8 +36,8 @@ export const Landing = async ({ user }) => {
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="50">50+</h3>
-              <p>Tỉnh thành</p>
+              <h3><span style="font-family:'Playfair Display',serif;font-weight:700;font-size:2.2rem;color:var(--text);">100%</span></h3>
+              <p>Phủ sóng toàn quốc</p>
             </div>
           </div>
         </div>
@@ -66,21 +66,41 @@ export const Landing = async ({ user }) => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               </div>
               <h3>Ghim địa điểm</h3>
-              <p>Bất kỳ ai cũng có thể báo cáo và đề xuất một hoàn cảnh khó khăn lên hệ thống bản đồ.</p>
+              <p>Bất kỳ ai cũng có thể báo cáo và đề xuất một hoàn cảnh khó khăn lên hệ thống bản đồ trực tuyến.</p>
             </div>
             <div class="feature-card fade-up" style="animation-delay: 0.2s">
               <div class="f-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
               </div>
               <h3>Xác thực thông tin</h3>
-              <p>Đội ngũ quản trị sẽ kiểm tra tính xác thực để đảm bảo tính minh bạch cho các nhà hảo tâm.</p>
+              <p>Đội ngũ quản trị và cộng đồng sẽ kiểm tra chéo tính xác thực để đảm bảo tính minh bạch tuyệt đối.</p>
             </div>
             <div class="feature-card fade-up" style="animation-delay: 0.3s">
               <div class="f-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </div>
               <h3>Kết nối trực tiếp</h3>
-              <p>Nhà hảo tâm có thể tới tận nơi hỗ trợ trực tiếp không cần qua bất kỳ trung gian nào.</p>
+              <p>Nhà hảo tâm có thể tới tận nơi hỗ trợ trực tiếp hoàn cảnh khó khăn mà không cần qua bất kỳ trung gian nào.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section" style="padding: 100px 0;">
+        <div class="container">
+          <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+            <div class="about-visual fade-up">
+              <img src="https://images.unsplash.com/photo-1593113589914-07553f1a0e88?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Từ thiện" style="width: 100%; border-radius: 24px; box-shadow: var(--shadow-lg);">
+            </div>
+            <div class="about-content fade-up" style="animation-delay: 0.2s">
+              <h2 class="section-title" style="text-align: left; margin-bottom: 24px;">Sứ mệnh của chúng tôi</h2>
+              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px;">
+                Trái Tim Việt được sinh ra với mong muốn xóa bỏ khoảng cách giữa những người cần giúp đỡ và những nhà hảo tâm. Bằng cách áp dụng công nghệ bản đồ số hoá, chúng tôi giúp mọi nguồn lực thiện nguyện đi đến đúng nơi, đúng lúc và hoàn toàn minh bạch.
+              </p>
+              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 30px;">
+                Với mạng lưới phủ sóng khắp các tỉnh thành trên toàn quốc, mọi đề xuất của bạn đều có thể thay đổi một cuộc đời. Hãy cùng nhau xây dựng một cộng đồng tử tế và vững mạnh.
+              </p>
+              <a href="/register" class="btn btn--primary btn--lg">Trở thành Người dẫn lửa</a>
             </div>
           </div>
         </div>

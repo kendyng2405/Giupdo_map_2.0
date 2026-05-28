@@ -1305,3 +1305,5 @@ textarea.form-control { resize:vertical; min-height:90px; }
     height: 1px;
   }
 }
+
+@media(max-width: 900px) { .about-grid { grid-template-columns: 1fr !important; gap: 30px !important; text-align: center; } .about-content .section-title { text-align: center !important; } }
