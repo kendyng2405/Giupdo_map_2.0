@@ -4,6 +4,14 @@ body, html {
 a, button, .clickable, select, input[type='submit'], input[type='button'], .leaflet-interactive {
   cursor: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke='%23000' stroke-width='1.5' stroke-linejoin='round'%3E%3Cpath d='M4 2 L24 13 L15 16 L22 25 L18 28 L11 19 L5 25 Z' fill='%23DA251D'/%3E%3Cpolygon points='10,8 11.2,11.5 15,11.5 12,13.8 13.2,17.5 10,15.2 6.8,17.5 8,13.8 5,11.5 8.8,11.5' fill='%23FFFF00' stroke='none'/%3E%3C/g%3E%3C/svg%3E") 4 2, pointer;
 }
+.leaflet-grab {
+  cursor: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg stroke='%23333' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='2' y='2' width='3' height='34' rx='1.5' fill='%23333'/%3E%3Cpath d='M 5 5 C 15 2 20 8 36 5 L 36 22 C 20 25 15 19 5 22 Z' fill='%23DA251D'/%3E%3Cpolygon points='20,9 21.2,12.5 25,12.5 22,14.8 23.2,18.5 20,16.2 16.8,18.5 18,14.8 15,12.5 18.8,12.5' fill='%23FFFF00' stroke='none'/%3E%3C/g%3E%3C/svg%3E") 2 18, grab !important;
+}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-icon {
+  cursor: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg stroke='%23333' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='2' y='2' width='3' height='34' rx='1.5' fill='%23333'/%3E%3Cpath d='M 5 5 C 15 2 20 8 36 5 L 36 22 C 20 25 15 19 5 22 Z' fill='%23DA251D'/%3E%3Cpolygon points='20,9 21.2,12.5 25,12.5 22,14.8 23.2,18.5 20,16.2 16.8,18.5 18,14.8 15,12.5 18.8,12.5' fill='%23FFFF00' stroke='none'/%3E%3C/g%3E%3C/svg%3E") 2 18, grabbing !important;
+}
 /* ================================================
    TRAI TIM VIET — Design System
    Font: Cormorant Garamond + DM Sans
