@@ -26,17 +26,17 @@ export const Landing = async ({ user }) => {
           
           <div class="hero-stats fade-up" style="animation-delay: 0.5s">
             <div class="stat-item">
-              <h3 class="count-up" data-target="1500">1,500+</h3>
+              <h3 class="count-up" data-target="1500">0</h3>
               <p>Hoàn cảnh khó khăn</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="3000">3,000+</h3>
+              <h3 class="count-up" data-target="3000">0</h3>
               <p>Người dẫn lửa</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="124">124</h3>
+              <h3 class="count-up" data-target="124">0</h3>
               <p>Đang trực tuyến</p>
             </div>
           </div>
