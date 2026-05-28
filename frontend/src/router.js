@@ -76,7 +76,7 @@ class Router {
 
   _getCurrentPath() {
     const path = window.location.pathname;
-    if (path === "/" || path === "") return "/home";
+    if (path === "" || path === "/") return "/";
     return path;
   }
 
