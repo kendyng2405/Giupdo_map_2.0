@@ -27,7 +27,7 @@ export const Landing = async ({ user }) => {
           <div class="hero-stats fade-up" style="animation-delay: 0.5s">
             <div class="stat-item">
               <h3 class="count-up" data-target="1500">1,500+</h3>
-              <p>Hoàn cảnh được giúp</p>
+              <p>Hoàn cảnh khó khăn</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
@@ -36,8 +36,8 @@ export const Landing = async ({ user }) => {
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3><span style="font-family:'Playfair Display',serif;font-weight:700;font-size:2.2rem;color:var(--text);">100%</span></h3>
-              <p>Phủ sóng toàn quốc</p>
+              <h3 class="count-up" data-target="124">124</h3>
+              <p>Đang trực tuyến</p>
             </div>
           </div>
         </div>
@@ -86,6 +86,44 @@ export const Landing = async ({ user }) => {
         </div>
       </section>
 
+      <section class="stories-section" style="padding: 100px 0; background: var(--bg2);">
+        <div class="container">
+          <h2 class="section-title fade-up">Câu chuyện truyền cảm hứng</h2>
+          <div class="features-grid" style="margin-top: 40px;">
+            <div class="feature-card fade-up" style="padding: 30px; text-align: left; background: var(--card);">
+              <p style="font-style: italic; color: var(--text-muted); margin-bottom: 20px;">"Nhờ có bản đồ Trái Tim Việt, tôi đã tìm được chú Ba chạy xe ôm ở đầu ngõ để trao tặng chiếc xe lăn mới. Ánh mắt vui mừng của chú là động lực để tôi tiếp tục hành trình."</p>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; background: var(--accent); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>
+                <div>
+                  <h4 style="margin:0; font-size: 1rem;">Minh Tuấn</h4>
+                  <p style="margin:0; font-size: 0.85rem; color: var(--text-muted);">Người Dẫn Lửa - TP.HCM</p>
+                </div>
+              </div>
+            </div>
+            <div class="feature-card fade-up" style="padding: 30px; text-align: left; background: var(--card); animation-delay: 0.15s;">
+              <p style="font-style: italic; color: var(--text-muted); margin-bottom: 20px;">"Không ngờ những xóm trọ công nhân nghèo ngay sát công ty mình lại đang thiếu thốn đến vậy. Giờ cuối tuần nào nhóm mình cũng tổ chức nấu ăn phát cơm tại đây."</p>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; background: var(--border); border-radius: 50%; color: var(--text); display: flex; align-items: center; justify-content: center; font-weight: bold;">H</div>
+                <div>
+                  <h4 style="margin:0; font-size: 1rem;">Hoàng Oanh</h4>
+                  <p style="margin:0; font-size: 0.85rem; color: var(--text-muted);">Nhân viên văn phòng - Hà Nội</p>
+                </div>
+              </div>
+            </div>
+            <div class="feature-card fade-up" style="padding: 30px; text-align: left; background: var(--card); animation-delay: 0.3s;">
+              <p style="font-style: italic; color: var(--text-muted); margin-bottom: 20px;">"Chỉ với một cú click ghim vị trí, trại trẻ mồ côi xã nhà đã nhận được sự trợ giúp từ những nhà hảo tâm tận miền Nam gửi ra. Vô cùng biết ơn cộng đồng!"</p>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; background: #EAB308; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">T</div>
+                <div>
+                  <h4 style="margin:0; font-size: 1rem;">Trần Thanh</h4>
+                  <p style="margin:0; font-size: 0.85rem; color: var(--text-muted);">Tình nguyện viên - Đà Nẵng</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="about-section" style="padding: 100px 0;">
         <div class="container">
           <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
@@ -111,8 +149,11 @@ export const Landing = async ({ user }) => {
         </div>
       </section>
 
-      <section class="contact-section" style="padding: 100px 0; background: var(--bg2);">
-        <div class="container">
+      <section class="contact-section" style="padding: 100px 0; background: var(--bg2); position: relative; overflow: hidden;">
+        <!-- Contact Background Pattern -->
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.03; pointer-events:none; background-image: radial-gradient(var(--text) 2px, transparent 2px); background-size: 40px 40px;"></div>
+        
+        <div class="container" style="position: relative; z-index: 2;">
           <div class="auth-card" style="margin: 0 auto; max-width: 600px;">
             <h2 class="section-title" style="margin-bottom: 24px;">Liên hệ với chúng tôi</h2>
             <p style="text-align:center; color: var(--text-muted); margin-bottom: 32px;">Nếu bạn có thắc mắc hoặc muốn hợp tác, hãy gửi tin nhắn cho chúng tôi.</p>
@@ -171,7 +212,7 @@ export const Landing = async ({ user }) => {
         counter.innerText = Math.ceil(c + increment).toLocaleString();
         setTimeout(updateCount, 20);
       } else {
-        counter.innerText = target.toLocaleString() + "+";
+        counter.innerText = target.toLocaleString() + (target === 124 ? "" : "+");
       }
     };
     
@@ -231,7 +272,7 @@ export const Landing = async ({ user }) => {
     particles.forEach((p, index) => {
       p.x += p.vx;
       p.y += p.vy;
-      p.life -= 0.015;
+      p.life -= 0.05; // Fade out quickly
       
       if (p.life <= 0) {
         particles.splice(index, 1);

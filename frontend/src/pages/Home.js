@@ -44,8 +44,24 @@ export const Home = async ({ user, userData }) => {
         <button class="filter-chip" data-filter="critical"><span class="dot" style="background:#EF4444"></span>Rất khẩn</button>
         <button class="filter-chip" data-filter="urgent"><span class="dot" style="background:#EAB308"></span>Khẩn cấp</button>
         <button class="filter-chip" data-filter="normal"><span class="dot" style="background:#22C55E"></span>Bình thường</button>
+
+        <select id="radius-filter" class="radius-select">
+          <option value="0">Khắp cả nước</option>
+          <option value="1">Quanh đây 1km</option>
+          <option value="3">Quanh đây 3km</option>
+          <option value="5">Quanh đây 5km</option>
+          <option value="10">Quanh đây 10km</option>
+        </select>
       </div>
       
+      <div id="radius-results" class="radius-results-panel">
+        <div class="radius-header">
+           <h3 id="radius-title">Gần bạn</h3>
+           <button id="radius-close" class="radius-close">×</button>
+        </div>
+        <div id="radius-list" class="radius-list"></div>
+      </div>
+
       <div class="map-sidebar" id="map-sidebar"></div>
     </div>
   `;
@@ -55,15 +71,16 @@ export const Home = async ({ user, userData }) => {
       getLocations(true),
       getLeaderboard()
     ]);
-    _initFilterAndLocate();
-    _initMapWhenReady(locationsRes.data || [], user, userData);
+    const locations = locationsRes.data || [];
+    _initFilterAndLocate(locations, user, userData);
+    _initMapWhenReady(locations, user, userData);
   } catch (err) {
     console.error("Home error:", err);
     Toast.show("Lỗi tải dữ liệu bản đồ.", "error");
   }
 };
 
-function _initFilterAndLocate() {
+function _initFilterAndLocate(locations, user, userData) {
   document.querySelectorAll(".filter-chip").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
@@ -90,6 +107,83 @@ function _initFilterAndLocate() {
         radius: 150, color: "#C0392B", fillOpacity: 0.15
       }).addTo(mapInstance);
     }, () => Toast.show("Không thể lấy vị trí.", "error"));
+  });
+
+  const radiusSelect = document.getElementById("radius-filter");
+  const radiusPanel = document.getElementById("radius-results");
+  const radiusList = document.getElementById("radius-list");
+  const radiusTitle = document.getElementById("radius-title");
+
+  document.getElementById("radius-close")?.addEventListener("click", () => {
+    radiusPanel.classList.remove("open");
+    radiusSelect.value = "0";
+    // Reset markers to show all
+    markersLayer.forEach(({ marker }) => marker.addTo(mapInstance));
+  });
+
+  radiusSelect?.addEventListener("change", (e) => {
+    const km = parseFloat(e.target.value);
+    if (km === 0) {
+      radiusPanel.classList.remove("open");
+      markersLayer.forEach(({ marker }) => marker.addTo(mapInstance));
+      return;
+    }
+
+    radiusPanel.classList.add("open");
+    radiusList.innerHTML = '<div style="text-align:center;padding:20px;"><span class="spinner"></span><p>Đang tìm vị trí của bạn...</p></div>';
+
+    if (!navigator.geolocation) {
+      radiusList.innerHTML = '<div style="padding:20px;color:var(--text-muted);">Không hỗ trợ định vị</div>';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const userLat = pos.coords.latitude;
+      const userLng = pos.coords.longitude;
+      
+      const nearby = locations.map(loc => {
+        const dist = _haversineKm(userLat, userLng, loc.lat, loc.lng);
+        return { ...loc, dist };
+      }).filter(l => l.dist <= km).sort((a, b) => a.dist - b.dist);
+
+      radiusTitle.textContent = `${nearby.length} địa điểm (<${km}km)`;
+      
+      // Update map markers
+      markersLayer.forEach(({ marker, loc }) => {
+        const d = _haversineKm(userLat, userLng, loc.lat, loc.lng);
+        d <= km ? marker.addTo(mapInstance) : mapInstance.removeLayer(marker);
+      });
+
+      if (nearby.length === 0) {
+        radiusList.innerHTML = '<div style="padding:20px;color:var(--text-muted);">Không có trường hợp nào trong bán kính này.</div>';
+        return;
+      }
+
+      radiusList.innerHTML = nearby.map(loc => {
+        const distStr = loc.dist < 1 ? Math.round(loc.dist * 1000) + 'm' : loc.dist.toFixed(1) + 'km';
+        return `
+          <div class="radius-item" data-id="${loc.id}">
+            <h4>${loc.title}</h4>
+            <p>${loc.address || 'Không rõ địa chỉ'}</p>
+            <span class="radius-item-dist">Cách đây ${distStr}</span>
+          </div>
+        `;
+      }).join("");
+
+      radiusList.querySelectorAll(".radius-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const loc = locations.find(l => l.id === item.dataset.id);
+          if (loc && mapInstance) {
+            mapInstance.flyTo([loc.lat, loc.lng], 16, { animate: true, duration: 0.8 });
+            _openSidebar(loc, user, userData, document.getElementById("map-sidebar"));
+            if(window.innerWidth < 768) radiusPanel.classList.remove("open");
+          }
+        });
+      });
+
+    }, () => {
+      radiusList.innerHTML = '<div style="padding:20px;color:var(--text-muted);">Từ chối hoặc không thể định vị.</div>';
+    });
   });
 }
 
