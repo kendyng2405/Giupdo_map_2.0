@@ -90,7 +90,7 @@ export const Landing = async ({ user }) => {
         <div class="container">
           <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
             <div class="about-visual fade-up">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Rice_terraces_in_Mu_Cang_Chai%2C_Vietnam.jpg" alt="Việt Nam" style="width: 100%; border-radius: 24px; box-shadow: var(--shadow-lg); object-fit: cover; height: 350px;">
+              <img src="https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Việt Nam" style="width: 100%; border-radius: 24px; box-shadow: var(--shadow-lg); object-fit: cover; height: 350px;">
             </div>
             <div class="about-content fade-up" style="animation-delay: 0.2s">
               <h2 class="section-title" style="text-align: left; margin-bottom: 24px;">Sứ mệnh của chúng tôi</h2>
