@@ -195,7 +195,7 @@ function _initFilterAndLocate(locations, user, userData) {
 
     }, () => {
       radiusList.innerHTML = '<div style="padding:20px;color:var(--text-muted);">Từ chối hoặc không thể định vị.</div>';
-    });
+    }, { maximumAge: 600000, timeout: 8000, enableHighAccuracy: false });
   });
 }
 

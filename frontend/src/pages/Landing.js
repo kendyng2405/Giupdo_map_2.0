@@ -226,100 +226,7 @@ export const Landing = async ({ user }) => {
   });
 
   // --- Liquid/Fluid Mouse Effect ---
-  const canvas = document.createElement('canvas');
-  canvas.id = 'fluid-canvas';
-  Object.assign(canvas.style, {
-    position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
-    pointerEvents: 'none', zIndex: '9999', opacity: '0.9'
-  });
-  document.body.appendChild(canvas);
-  
-  const ctx = canvas.getContext('2d');
-  let width, height, particles = [];
-  const mouse = { x: -1000, y: -1000 };
-
-  const resize = () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  };
-  window.addEventListener('resize', resize);
-  resize();
-
-  const handleMouseMove = e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    if(Math.random() > 0.3) {
-      particles.push({
-        x: mouse.x, y: mouse.y,
-        vx: (Math.random() - 0.5) * 3,
-        vy: (Math.random() - 0.5) * 3,
-        size: Math.random() * 15 + 10,
-        life: 1,
-        isFlag: Math.random() > 0.5
-      });
-    }
-  };
-
-  window.addEventListener('mousemove', handleMouseMove);
-
-  const drawStar = (cx, cy, spikes, outerRadius, innerRadius) => {
-    let rot = Math.PI / 2 * 3;
-    let x = cx;
-    let y = cy;
-    let step = Math.PI / spikes;
-
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - outerRadius);
-    for (let i = 0; i < spikes; i++) {
-        x = cx + Math.cos(rot) * outerRadius;
-        y = cy + Math.sin(rot) * outerRadius;
-        ctx.lineTo(x, y);
-        rot += step;
-
-        x = cx + Math.cos(rot) * innerRadius;
-        y = cy + Math.sin(rot) * innerRadius;
-        ctx.lineTo(x, y);
-        rot += step;
-    }
-    ctx.lineTo(cx, cy - outerRadius);
-    ctx.closePath();
-    ctx.fill();
-  };
-
-  const render = () => {
-    if (!document.getElementById('fluid-canvas')) return; // Cleanup on unmount
-    ctx.clearRect(0, 0, width, height);
-    
-    // Draw particles
-    particles.forEach((p, index) => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.05; // Fade out quickly
-      
-      if (p.life <= 0) {
-        particles.splice(index, 1);
-      } else {
-        ctx.save();
-        ctx.globalAlpha = p.life;
-        if (p.isFlag) {
-          // Draw real Vietnam flag
-          ctx.translate(p.x, p.y);
-          // Red box
-          ctx.fillStyle = '#DA251D';
-          ctx.fillRect(-p.size, -p.size*0.66, p.size*2, p.size*1.33);
-          // Yellow star
-          ctx.fillStyle = '#FFFF00';
-          drawStar(0, 0, 5, p.size*0.4, p.size*0.15);
-        } else {
-          ctx.font = `${p.size*1.5}px Arial`;
-          ctx.fillText('❤️', p.x - p.size*0.75, p.y + p.size*0.5);
-        }
-        ctx.restore();
-      }
-    });
-    requestAnimationFrame(render);
-  };
-  render();
+  // The user requested to remove the canvas mouse trail completely.
 
   // --- Scroll Scrub Animation ---
   const animSection = document.getElementById('scroll-anim-section');
@@ -333,8 +240,6 @@ export const Landing = async ({ user }) => {
     const totalScroll = rect.height - window.innerHeight;
     
     // We start when rect.top <= window.innerHeight and finish when rect.bottom <= window.innerHeight
-    // Wait, simpler: we want progress from 0 to 1 as we scroll through the section while it's sticky.
-    // Sticky starts when rect.top <= 0
     if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
       let progress = Math.abs(rect.top) / totalScroll;
       
@@ -397,10 +302,6 @@ export const Landing = async ({ user }) => {
 
   // Cleanup canvas when navigating away from landing
   const cleanup = () => {
-    const c = document.getElementById('fluid-canvas');
-    if (c) c.remove();
-    window.removeEventListener('resize', resize);
-    window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('scroll', handleScrollAnim);
   };
   
