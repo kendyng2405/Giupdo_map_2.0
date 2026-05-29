@@ -1,4 +1,5 @@
 import { admin, db, auth } from '../config/firebase.js';
+import { getCache, setCache, clearCache } from '../utils/cache.js';
 
 const RANKS = [
   { name: "Đồng Lòng",     minPoints: 0,  color: "#CD7F32", next: 5  },
@@ -39,6 +40,7 @@ export const create = async (uid, data) => {
   };
   
   await userRef.set(userData);
+  clearCache();
   return { id: uid, ...userData };
 };
 
@@ -78,6 +80,7 @@ export const update = async (uid, data) => {
   const userRef = db.collection('users').doc(uid);
   await userRef.update(data);
   const doc = await userRef.get();
+  clearCache();
   return { id: uid, ...doc.data() };
 };
 
@@ -94,35 +97,50 @@ export const addSupportedLocation = async (uid, locationId) => {
       supportedLocations: admin.firestore.FieldValue.arrayUnion(locationId),
       points: admin.firestore.FieldValue.increment(1)
     });
+    clearCache();
   }
 };
 
 export const getLeaderboard = async (limit = 10) => {
+  const cacheKey = `leaderboard_${limit}`;
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   const snapshot = await db.collection('users')
     .orderBy('points', 'desc')
     .limit(limit)
     .get();
     
-  return snapshot.docs.map(doc => {
-    const data = doc.data();
-    const { currentRank } = getRankByPoints(data.points || 0);
+  const data = snapshot.docs.map(doc => {
+    const docData = doc.data();
+    const { currentRank } = getRankByPoints(docData.points || 0);
     return {
       id: doc.id,
-      fullName: data.fullName,
-      photoURL: data.photoURL,
-      points: data.points,
-      rankInfo: getRankByPoints(data.points || 0),
+      fullName: docData.fullName,
+      photoURL: docData.photoURL,
+      points: docData.points,
+      rankInfo: getRankByPoints(docData.points || 0),
       rank: {
         name: currentRank.name,
         color: currentRank.color
       }
     };
   });
+  
+  setCache(cacheKey, data, 60);
+  return data;
 };
 
 export const getAll = async () => {
+  const cacheKey = 'users_all';
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+  setCache(cacheKey, data, 60);
+  return data;
 };
 
 export const updateProfile = async (uid, { fullName, phone }) => {
@@ -134,6 +152,7 @@ export const deleteUser = async (uid) => {
   await auth.deleteUser(uid);
   // Xóa document trong Firestore
   await db.collection('users').doc(uid).delete();
+  clearCache();
 };
 
 export const setRole = async (uid, role) => {
