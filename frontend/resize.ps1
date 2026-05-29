@@ -1,0 +1,6 @@
+[System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
+$img = [System.Drawing.Image]::FromFile('C:\Users\kendy\.gemini\antigravity\brain\cfa375d8-c840-4216-9b66-7b765aef9391\traitimviet_logo_perfect_1780068778907.png')
+$bmp192 = New-Object System.Drawing.Bitmap($img, 192, 192)
+$bmp512 = New-Object System.Drawing.Bitmap($img, 512, 512)
+$bmp192.Save('D:\GiupDoMap_2.0\frontend\public\icon-192.png', [System.Drawing.Imaging.ImageFormat]::Png)
+$bmp512.Save('D:\GiupDoMap_2.0\frontend\public\icon-512.png', [System.Drawing.Imaging.ImageFormat]::Png)
