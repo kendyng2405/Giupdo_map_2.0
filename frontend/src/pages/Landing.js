@@ -4,21 +4,6 @@ import { getLeaderboard } from "../api/user.api.js";
 export const Landing = async ({ user }) => {
   const app = document.getElementById("app");
   
-  let locCount = 0;
-  let userCount = 0;
-  let onlineCount = 1; // Since there is only one user (you) testing it right now
-  
-  try {
-    const [locationsRes, leaderboardRes] = await Promise.all([
-      getLocations(true),
-      getLeaderboard()
-    ]);
-    locCount = (locationsRes.data || []).length;
-    userCount = (leaderboardRes.data || []).length;
-  } catch (err) {
-    console.error("Failed to load stats", err);
-  }
-  
   app.innerHTML = `
     <div class="landing-page">
       <section class="hero-section">
@@ -44,17 +29,17 @@ export const Landing = async ({ user }) => {
           
           <div class="hero-stats fade-up" style="animation-delay: 0.5s">
             <div class="stat-item">
-              <h3 class="count-up" data-target="${locCount}">0</h3>
+              <h3 class="count-up" id="loc-count" data-target="0">0</h3>
               <p>Hoàn cảnh khó khăn</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="${userCount}">0</h3>
+              <h3 class="count-up" id="user-count" data-target="0">0</h3>
               <p>Người dẫn lửa</p>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <h3 class="count-up" data-target="${onlineCount}">0</h3>
+              <h3 class="count-up" data-target="1">0</h3>
               <p>Đang trực tuyến</p>
             </div>
           </div>
@@ -219,9 +204,9 @@ export const Landing = async ({ user }) => {
   fadeElements.forEach(el => scrollObserver.observe(el));
 
   // Animate count up
-  const counters = document.querySelectorAll('.count-up');
-  counters.forEach(counter => {
+  const runCount = (counter) => {
     const target = +counter.getAttribute('data-target');
+    if (target === 0) return; // Wait for data
     const increment = target / 100;
     
     const updateCount = () => {
@@ -230,18 +215,41 @@ export const Landing = async ({ user }) => {
         counter.innerText = Math.ceil(c + increment).toLocaleString();
         setTimeout(updateCount, 20);
       } else {
-        counter.innerText = target.toLocaleString() + (target === 124 ? "" : "+");
+        counter.innerText = target.toLocaleString() + (target === 1 ? "" : "+");
       }
     };
-    
+    updateCount();
+  };
+
+  const counters = document.querySelectorAll('.count-up');
+  counters.forEach(counter => {
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        updateCount();
+        counter.dataset.started = "true";
+        runCount(counter);
         observer.disconnect();
       }
     });
     observer.observe(counter);
   });
+
+  // Fetch stats asynchronously so it doesn't block UI load
+  Promise.all([getLocations(true), getLeaderboard()]).then(([locRes, leadRes]) => {
+    const locCount = (locRes.data || []).length;
+    const userCount = (leadRes.data || []).length;
+    
+    const elLoc = document.getElementById("loc-count");
+    const elUser = document.getElementById("user-count");
+    
+    if (elLoc) {
+      elLoc.setAttribute("data-target", locCount);
+      if (elLoc.dataset.started === "true") runCount(elLoc);
+    }
+    if (elUser) {
+      elUser.setAttribute("data-target", userCount);
+      if (elUser.dataset.started === "true") runCount(elUser);
+    }
+  }).catch(e => console.error(e));
 
   // --- Liquid/Fluid Mouse Effect ---
   // The user requested to remove the canvas mouse trail completely.
