@@ -1,4 +1,5 @@
 import { admin, db, storage } from '../config/firebase.js';
+import { getCache, setCache, clearCache } from '../utils/cache.js';
 
 export const uploadImage = async (file) => {
   if (!file) return null;
@@ -27,24 +28,36 @@ export const create = async (data, imageFile) => {
   
   // Format arrays and numbers
   if (typeof locData.helpTypes === 'string') {
-    locData.helpTypes = locData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      locData.helpTypes = JSON.parse(locData.helpTypes);
+    } catch(e) {
+      locData.helpTypes = locData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   locData.lat = Number(locData.lat);
   locData.lng = Number(locData.lng);
   if (locData.peopleCount) locData.peopleCount = Number(locData.peopleCount);
   
   const docRef = await db.collection('locations').add(locData);
+  clearCache();
   return { id: docRef.id, ...locData };
 };
 
 export const findAll = async (onlyActive = true) => {
+  const cacheKey = `locations_${onlyActive}`;
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   let query = db.collection('locations').orderBy('createdAt', 'desc');
   if (onlyActive) {
     query = query.where('isActive', '==', true);
   }
   
   const snapshot = await query.get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+  setCache(cacheKey, data, 60); // Cache for 60 seconds
+  return data;
 };
 
 export const findById = async (id) => {
@@ -62,7 +75,11 @@ export const update = async (id, data, imageFile) => {
   }
   
   if (typeof updateData.helpTypes === 'string') {
-    updateData.helpTypes = updateData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      updateData.helpTypes = JSON.parse(updateData.helpTypes);
+    } catch(e) {
+      updateData.helpTypes = updateData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   if (updateData.lat) updateData.lat = Number(updateData.lat);
   if (updateData.lng) updateData.lng = Number(updateData.lng);
@@ -71,6 +88,7 @@ export const update = async (id, data, imageFile) => {
   const docRef = db.collection('locations').doc(id);
   await docRef.update(updateData);
   
+  clearCache();
   const doc = await docRef.get();
   return { id: doc.id, ...doc.data() };
 };
@@ -93,11 +111,13 @@ export const deleteLocation = async (id) => {
       }
     }
     await docRef.delete();
+    clearCache();
   }
 };
 
 export const toggleActive = async (id, isActive) => {
   await db.collection('locations').doc(id).update({ isActive });
+  clearCache();
   return { id, isActive };
 };
 
@@ -105,4 +125,5 @@ export const incrementSupport = async (id) => {
   await db.collection('locations').doc(id).update({
     supportCount: admin.firestore.FieldValue.increment(1)
   });
+  clearCache();
 };

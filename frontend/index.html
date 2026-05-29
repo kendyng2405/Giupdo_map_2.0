@@ -15,17 +15,28 @@
   </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="/src/styles/main.css">
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
 </head>
 <body>
 
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
-    <a href="/home" class="nav-brand">
+    <a href="/" class="nav-brand">
       <div class="brand-logo"></div>
       <span class="brand-name">Trái Tim Việt</span>
     </a>
 
     <div class="nav-links" id="main-nav">
+      <a href="/" class="nav-link" data-nav="/">Giới thiệu</a>
       <a href="/home" class="nav-link" data-nav="/home">Bản đồ</a>
       <span id="nav-admin" style="display:none;">
         <a href="/admin/dashboard" class="nav-link" data-nav="/admin/dashboard">Quản Trị</a>

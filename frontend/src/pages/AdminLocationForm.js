@@ -18,9 +18,9 @@ const URGENCY = [
   { value: "critical", label: "Rất khẩn", color: "#EF4444" }
 ];
 
-export const AdminLocationForm = async ({ user, userData, match }) => {
+export const AdminLocationForm = async ({ user, userData, params }) => {
   const app = document.getElementById("app");
-  const locId = match?.params?.id;
+  const locId = params?.id;
   let location = null;
   
   if (locId) {

@@ -63,7 +63,7 @@ export const AdminUsers = async ({ user, userData }) => {
                         </td>
                         <td style="font-size:.82rem">${u.email || ""}</td>
                         <td>
-                          <select class="form-control form-control--sm role-select" data-uid="${u.uid}" style="width:auto;padding:4px 8px;font-size:.78rem">
+                          <select class="form-control form-control--sm role-select" data-uid="${u.id}" style="width:auto;padding:4px 8px;font-size:.78rem">
                             <option value="member" ${u.role === "member" ? "selected" : ""}>Thành viên</option>
                             <option value="admin" ${u.role === "admin" ? "selected" : ""}>Người Dẫn Lửa</option>
                             <option value="founder" ${u.role === "founder" ? "selected" : ""}>Người Sáng Lập</option>
@@ -73,8 +73,8 @@ export const AdminUsers = async ({ user, userData }) => {
                         <td>${u.supportedLocations?.length || 0}</td>
                         <td>
                           <div style="display:flex; gap: 6px;">
-                            <button class="btn btn--ghost btn--sm edit-user-btn" data-uid="${u.uid}" data-name="${u.fullName || ""}" data-email="${u.email || ""}" data-phone="${u.phone || ""}" data-points="${u.points || 0}">Sửa</button>
-                            <button class="btn btn--danger btn--sm delete-user-btn" data-uid="${u.uid}">Xóa</button>
+                            <button class="btn btn--ghost btn--sm edit-user-btn" data-uid="${u.id}" data-name="${u.fullName || ""}" data-email="${u.email || ""}" data-phone="${u.phone || ""}" data-points="${u.points || 0}">Sửa</button>
+                            <button class="btn btn--danger btn--sm delete-user-btn" data-uid="${u.id}">Xóa</button>
                           </div>
                         </td>
                       </tr>`;

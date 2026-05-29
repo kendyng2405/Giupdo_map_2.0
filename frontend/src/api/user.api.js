@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from './client.js';
+import { apiGet, apiPost, apiPostForm, apiPut, apiDelete } from './client.js';
 
 export const getMe = async () => {
   return await apiGet('/users/me');
@@ -9,7 +9,7 @@ export const updateProfile = async (data) => {
 };
 
 export const uploadAvatar = async (formData) => {
-  return await apiPost('/users/me/avatar', { body: formData });
+  return await apiPostForm('/users/me/avatar', formData);
 };
 
 export const updateEmail = async (email) => {

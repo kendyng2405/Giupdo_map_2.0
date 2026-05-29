@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiDelete } from './client.js';
+import { apiGet, apiPost, apiPostForm, apiDelete } from './client.js';
 
 export const getSuggestions = async (status = '') => {
   const url = status ? `/suggestions?status=${status}` : '/suggestions';
@@ -10,7 +10,7 @@ export const getMySuggestions = async () => {
 };
 
 export const createSuggestion = async (formData) => {
-  return await apiPost('/suggestions', { body: formData });
+  return await apiPostForm('/suggestions', formData);
 };
 
 export const approveSuggestion = async (id) => {

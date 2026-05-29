@@ -1,4 +1,5 @@
 import { admin, db, storage } from '../config/firebase.js';
+import { getCache, setCache, clearCache } from '../utils/cache.js';
 import { uploadImage } from './location.service.js';
 import * as locationService from './location.service.js';
 import * as notificationService from './notification.service.js';
@@ -14,7 +15,11 @@ export const create = async (data, imageFile) => {
   };
   
   if (typeof sugData.helpTypes === 'string') {
-    sugData.helpTypes = sugData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      sugData.helpTypes = JSON.parse(sugData.helpTypes);
+    } catch(e) {
+      sugData.helpTypes = sugData.helpTypes.split(',').map(s => s.trim()).filter(Boolean);
+    }
   }
   sugData.lat = Number(sugData.lat);
   sugData.lng = Number(sugData.lng);
@@ -33,26 +38,40 @@ export const create = async (data, imageFile) => {
     link: '/admin/suggestions'
   });
   
+  clearCache();
   return { id: docRef.id, ...sugData };
 };
 
 export const findAll = async (status) => {
+  const cacheKey = `suggestions_${status || 'all'}`;
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   let query = db.collection('suggestions').orderBy('createdAt', 'desc');
   if (status) {
     query = query.where('status', '==', status);
   }
   
   const snapshot = await query.get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+  setCache(cacheKey, data, 60);
+  return data;
 };
 
 export const findByUserId = async (uid) => {
+  const cacheKey = `suggestions_user_${uid}`;
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   const snapshot = await db.collection('suggestions')
     .where('submittedBy', '==', uid)
     .orderBy('createdAt', 'desc')
     .get();
     
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  setCache(cacheKey, data, 60);
+  return data;
 };
 
 export const findById = async (id) => {
@@ -101,6 +120,7 @@ export const approve = async (id, reviewerUid) => {
     link: `/home`
   });
   
+  clearCache();
   return { id, status: 'approved' };
 };
 
@@ -127,6 +147,7 @@ export const reject = async (id, reviewerUid, reason) => {
     link: '/profile'
   });
   
+  clearCache();
   return { id, status: 'rejected' };
 };
 
@@ -148,5 +169,6 @@ export const deleteSuggestion = async (id) => {
       }
     }
     await docRef.delete();
+    clearCache();
   }
 };

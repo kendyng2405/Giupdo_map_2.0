@@ -16,7 +16,7 @@ export const Profile = async ({ user, userData }) => {
   try {
     const res = await getLeaderboard();
     const leaderboard = res.data || [];
-    const myRankIdx = leaderboard.findIndex(u => u.uid === user.uid);
+    const myRankIdx = leaderboard.findIndex(u => u.id === user.uid);
     const myRank = myRankIdx >= 0 ? myRankIdx + 1 : null;
 
     const isFounder = userData?.role === "founder";
@@ -145,11 +145,11 @@ export const Profile = async ({ user, userData }) => {
                     ? `<img src="${m.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">` 
                     : (m.fullName || "?").charAt(0).toUpperCase();
                   return `
-                    <div class="lb-item ${m.uid === user?.uid ? "lb-item--me" : ""}">
+                    <div class="lb-item ${m.id === user?.uid ? "lb-item--me" : ""}">
                       <div class="lb-rank ${i === 0 ? "lb-rank--top1" : i === 1 ? "lb-rank--top2" : i === 2 ? "lb-rank--top3" : ""}">${i + 1}</div>
                       <div class="lb-avatar" style="overflow:hidden">${av}</div>
                       <div class="lb-info">
-                        <div class="lb-name">${m.fullName || "Ẩn danh"}${m.uid === user?.uid ? ` <span style="font-size:.62rem;color:var(--accent)">(Bạn)</span>` : ""}</div>
+                        <div class="lb-name">${m.fullName || "Ẩn danh"}${m.id === user?.uid ? ` <span style="font-size:.62rem;color:var(--accent)">(Bạn)</span>` : ""}</div>
                         <div class="lb-meta">${m.rank?.name || "Đồng Lòng"}</div>
                       </div>
                       <div class="lb-pts">${m.points || 0}</div>

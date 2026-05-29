@@ -54,3 +54,49 @@ export const apiPost = (endpoint, body) => request(endpoint, { method: 'POST', b
 export const apiPut = (endpoint, body) => request(endpoint, { method: 'PUT', body });
 export const apiPatch = (endpoint, body) => request(endpoint, { method: 'PATCH', body });
 export const apiDelete = (endpoint) => request(endpoint, { method: 'DELETE' });
+
+// FormData helpers — send multipart/form-data without JSON.stringify
+export const apiPostForm = async (endpoint, formData) => {
+  const token = await getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  // Do NOT set Content-Type — let the browser set multipart boundary automatically
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    data = { error: 'Lỗi parse JSON' };
+  }
+  if (!response.ok) throw new Error(data.error || 'Lỗi kết nối máy chủ');
+  return data;
+};
+
+export const apiPutForm = async (endpoint, formData) => {
+  const token = await getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'PUT',
+    headers,
+    body: formData,
+  });
+
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    data = { error: 'Lỗi parse JSON' };
+  }
+  if (!response.ok) throw new Error(data.error || 'Lỗi kết nối máy chủ');
+  return data;
+};
