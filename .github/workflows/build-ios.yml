@@ -12,17 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
       
-      - name: Install CocoaPods
-        working-directory: "mobile_App/Trái Tim Việt/src"
-        run: pod install
-        
       - name: Build Xcode Project (Unsigned)
-        working-directory: "mobile_App/Trái Tim Việt/src"
+        working-directory: "frontend/ios/App"
         run: |
           set -o pipefail
+          # Build Capacitor project
           xcodebuild clean build \
-            -workspace "Trái Tim Việt.xcworkspace" \
-            -scheme "Trái Tim Việt" \
+            -workspace "App.xcworkspace" \
+            -scheme "App" \
             -configuration Release \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -36,10 +33,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: XcodeBuild-Error-Logs
-          path: "mobile_App/Trái Tim Việt/src/xcodebuild.log"
+          path: "frontend/ios/App/xcodebuild.log"
           
       - name: Package into IPA
-        working-directory: "mobile_App/Trái Tim Việt/src"
+        working-directory: "frontend/ios/App"
         run: |
           mkdir -p Payload
           mv Build/Build/Products/Release-iphoneos/*.app Payload/
@@ -49,4 +46,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: TraiTimViet-IPA
-          path: "mobile_App/Trái Tim Việt/src/TraiTimViet_Unsigned.ipa"
+          path: "frontend/ios/App/TraiTimViet_Unsigned.ipa"
