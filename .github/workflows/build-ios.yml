@@ -5,6 +5,8 @@ on:
 jobs:
   build_ios:
     runs-on: macos-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -16,7 +18,7 @@ jobs:
       - name: Build Xcode Project (Unsigned)
         working-directory: "mobile_App/Trái Tim Việt/src"
         run: |
-          # Build project không cần chứng chỉ (Unsigned)
+          # Build project không cần chứng chỉ (Unsigned) và loại bỏ Entitlements
           xcodebuild clean build \
             -workspace "Trái Tim Việt.xcworkspace" \
             -scheme "Trái Tim Việt" \
@@ -24,6 +26,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
             -sdk iphoneos \
             -derivedDataPath Build/
           
