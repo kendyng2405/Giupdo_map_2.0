@@ -18,7 +18,7 @@ jobs:
           set -o pipefail
           # Build Capacitor project
           xcodebuild clean build \
-            -workspace "App.xcworkspace" \
+            -project "App.xcodeproj" \
             -scheme "App" \
             -configuration Release \
             CODE_SIGN_IDENTITY="" \
