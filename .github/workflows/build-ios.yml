@@ -11,6 +11,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        
+      - name: Build Web & Sync Capacitor
+        working-directory: "frontend"
+        run: |
+          npm install
+          npm run build
+          npx cap sync ios
       
       - name: Build Xcode Project (Unsigned)
         working-directory: "frontend/ios/App"
