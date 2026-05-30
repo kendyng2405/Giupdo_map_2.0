@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Trai Tim Viet</string>
+    <string name="title_activity_main">Trai Tim Viet</string>
+    <string name="package_name">com.traitimviet.app</string>
+    <string name="custom_url_scheme">com.traitimviet.app</string>
+</resources>

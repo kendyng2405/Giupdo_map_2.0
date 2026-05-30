@@ -1,0 +1,41 @@
+name: Build iOS IPA (Free)
+on:
+  workflow_dispatch:
+
+jobs:
+  build_ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Install CocoaPods
+        working-directory: "mobile_App/Trái Tim Việt/src"
+        run: pod install
+        
+      - name: Build Xcode Project (Unsigned)
+        working-directory: "mobile_App/Trái Tim Việt/src"
+        run: |
+          # Build project không cần chứng chỉ (Unsigned)
+          xcodebuild clean build \
+            -workspace "Trái Tim Việt.xcworkspace" \
+            -scheme "Trái Tim Việt" \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -sdk iphoneos \
+            -derivedDataPath Build/
+          
+      - name: Package into IPA
+        working-directory: "mobile_App/Trái Tim Việt/src"
+        run: |
+          mkdir -p Payload
+          mv Build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -r TraiTimViet_Unsigned.ipa Payload/
+          
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraiTimViet-IPA
+          path: "mobile_App/Trái Tim Việt/src/TraiTimViet_Unsigned.ipa"

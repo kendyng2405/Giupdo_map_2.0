@@ -87,10 +87,11 @@ function _initFilterAndLocate(locations, user, userData) {
       document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       const f = btn.dataset.filter;
-      if (!mapInstance) return;
+      if (!mapInstance || !window.markerClusterGroup) return;
+      window.markerClusterGroup.clearLayers();
       markersLayer.forEach(({ marker, loc }) => {
         const show = f === "all" || loc.urgency === f;
-        show ? marker.addTo(mapInstance) : mapInstance.removeLayer(marker);
+        if (show) window.markerClusterGroup.addLayer(marker);
       });
     });
   });
@@ -145,14 +146,20 @@ function _initFilterAndLocate(locations, user, userData) {
     radiusPanel.classList.remove("open");
     radiusSelect.value = "0";
     // Reset markers to show all
-    markersLayer.forEach(({ marker }) => marker.addTo(mapInstance));
+    if (window.markerClusterGroup) {
+      window.markerClusterGroup.clearLayers();
+      markersLayer.forEach(({ marker }) => window.markerClusterGroup.addLayer(marker));
+    }
   });
 
   radiusSelect?.addEventListener("change", (e) => {
     const km = parseFloat(e.target.value);
     if (km === 0) {
       radiusPanel.classList.remove("open");
-      markersLayer.forEach(({ marker }) => marker.addTo(mapInstance));
+      if (window.markerClusterGroup) {
+        window.markerClusterGroup.clearLayers();
+        markersLayer.forEach(({ marker }) => window.markerClusterGroup.addLayer(marker));
+      }
       return;
     }
 
@@ -176,10 +183,13 @@ function _initFilterAndLocate(locations, user, userData) {
       radiusTitle.textContent = `${nearby.length} địa điểm (<${km}km)`;
       
       // Update map markers
-      markersLayer.forEach(({ marker, loc }) => {
-        const d = _haversineKm(userLat, userLng, loc.lat, loc.lng);
-        d <= km ? marker.addTo(mapInstance) : mapInstance.removeLayer(marker);
-      });
+      if (window.markerClusterGroup) {
+        window.markerClusterGroup.clearLayers();
+        markersLayer.forEach(({ marker, loc }) => {
+          const d = _haversineKm(userLat, userLng, loc.lat, loc.lng);
+          if (d <= km) window.markerClusterGroup.addLayer(marker);
+        });
+      }
 
       if (nearby.length === 0) {
         radiusList.innerHTML = '<div style="padding:20px;color:var(--text-muted);">Không có trường hợp nào trong bán kính này.</div>';
@@ -231,6 +241,7 @@ function _initMapWhenReady(locations, user, userData) {
         mapInstance = null;
         markersLayer = [];
         userLocationLayer = null;
+        if (window.markerClusterGroup) window.markerClusterGroup = null;
       }
       mapInstance = L.map(mapEl, {
         center: [16.047079, 108.206230],
@@ -275,9 +286,29 @@ function _plotMarkers(locations, user, userData) {
       .marker-ring-2 { animation-delay: 0.8s; }
       .marker-ring-3 { animation-delay: 1.6s; }
       @keyframes dotPulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.65; } 100% { transform: translate(-50%, -50%) scale(3.8); opacity: 0; } }
+      .marker-cluster-custom { background-clip: padding-box; border-radius: 20px; }
+      .marker-cluster-custom div { width: 30px; height: 30px; margin-left: 5px; margin-top: 5px; text-align: center; border-radius: 15px; font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif; display:flex; align-items:center; justify-content:center; font-weight: bold; color: white; background-color: var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
     `;
     document.head.appendChild(style);
   }
+
+  if (window.markerClusterGroup) {
+    mapInstance.removeLayer(window.markerClusterGroup);
+  }
+  
+  window.markerClusterGroup = L.markerClusterGroup({
+    chunkedLoading: true,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function (cluster) {
+      return L.divIcon({
+        html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+        className: 'marker-cluster-custom',
+        iconSize: L.point(40, 40)
+      });
+    }
+  });
 
   locations.forEach(loc => {
     const color = urgencyColors[loc.urgency] || "#22C55E";
@@ -293,15 +324,17 @@ function _plotMarkers(locations, user, userData) {
       html, className: "",
       iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -16]
     });
-    const marker = L.marker([loc.lat, loc.lng], { icon }).addTo(mapInstance);
+    const marker = L.marker([loc.lat, loc.lng], { icon });
     marker.on("click", e => {
       L.DomEvent.stopPropagation(e);
       mapInstance.flyTo([loc.lat, loc.lng], 16, { animate: true, duration: 0.8 });
       _openSidebar(loc, user, userData, sidebar);
     });
+    window.markerClusterGroup.addLayer(marker);
     markersLayer.push({ marker, loc });
   });
 
+  mapInstance.addLayer(window.markerClusterGroup);
   mapInstance.on("click", () => sidebar?.classList.remove("open"));
 }
 
