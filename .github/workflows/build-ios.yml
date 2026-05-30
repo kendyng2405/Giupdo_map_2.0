@@ -2,11 +2,12 @@ name: Build iOS IPA (Free)
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build_ios:
     runs-on: macos-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -18,7 +19,7 @@ jobs:
       - name: Build Xcode Project (Unsigned)
         working-directory: "mobile_App/Trái Tim Việt/src"
         run: |
-          # Build project không cần chứng chỉ (Unsigned) và loại bỏ Entitlements
+          set -o pipefail
           xcodebuild clean build \
             -workspace "Trái Tim Việt.xcworkspace" \
             -scheme "Trái Tim Việt" \
@@ -28,7 +29,14 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_ENTITLEMENTS="" \
             -sdk iphoneos \
-            -derivedDataPath Build/
+            -derivedDataPath Build/ | tee xcodebuild.log
+          
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: XcodeBuild-Error-Logs
+          path: "mobile_App/Trái Tim Việt/src/xcodebuild.log"
           
       - name: Package into IPA
         working-directory: "mobile_App/Trái Tim Việt/src"
