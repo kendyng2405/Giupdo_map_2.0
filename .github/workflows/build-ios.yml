@@ -1,0 +1,56 @@
+name: Build iOS IPA (Free)
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build_ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Build Web & Sync Capacitor
+        working-directory: "frontend"
+        run: |
+          npm install
+          npm run build
+          npx cap sync ios
+      
+      - name: Build Xcode Project (Unsigned)
+        working-directory: "frontend/ios/App"
+        run: |
+          set -o pipefail
+          # Build Capacitor project
+          xcodebuild clean build \
+            -project "App.xcodeproj" \
+            -scheme "App" \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
+            -sdk iphoneos \
+            -derivedDataPath Build/ | tee xcodebuild.log
+          
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: XcodeBuild-Error-Logs
+          path: "frontend/ios/App/xcodebuild.log"
+          
+      - name: Package into IPA
+        working-directory: "frontend/ios/App"
+        run: |
+          mkdir -p Payload
+          mv Build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -r TraiTimViet_Unsigned.ipa Payload/
+          
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraiTimViet-IPA
+          path: "frontend/ios/App/TraiTimViet_Unsigned.ipa"
